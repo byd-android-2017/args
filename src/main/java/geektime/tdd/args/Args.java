@@ -76,42 +76,42 @@ public class Args {
   static class BooleanOptionParser implements OptionParser {
     @Override
     public Object parse(List<String> arguments, Option option) {
-      return parseBoolean(arguments, option);
+      Object argValue;
+      argValue = arguments.contains("-" + option.value());
+      return argValue;
     }
   }
 
   static class IntOptionParser implements OptionParser {
     @Override
     public Object parse(List<String> arguments, Option option) {
-      return parseInt(arguments, option);
+      Object argValue;
+      int argNameIndex = arguments.indexOf("-" + option.value());
+      argValue = Integer.valueOf(arguments.get(argNameIndex + 1));
+      return argValue;
     }
   }
 
   static class StringOptionParser implements OptionParser {
     @Override
     public Object parse(List<String> arguments, Option option) {
-      return parseString(arguments, option);
+      Object argValue;
+      int argNameIndex = arguments.indexOf("-" + option.value());
+      argValue = arguments.get(argNameIndex + 1);
+      return argValue;
     }
   }
 
   private static Object parseString(List<String> arguments, Option option) {
-    Object argValue;
-    int argNameIndex = arguments.indexOf("-" + option.value());
-    argValue = arguments.get(argNameIndex + 1);
-    return argValue;
+    return new StringOptionParser().parse(arguments, option);
   }
 
   private static Object parseInt(List<String> arguments, Option option) {
-    Object argValue;
-    int argNameIndex = arguments.indexOf("-" + option.value());
-    argValue = Integer.valueOf(arguments.get(argNameIndex + 1));
-    return argValue;
+    return new IntOptionParser().parse(arguments, option);
   }
 
   private static Object parseBoolean(List<String> arguments, Option option) {
-    Object argValue;
-    argValue = arguments.contains("-" + option.value());
-    return argValue;
+    return new BooleanOptionParser().parse(arguments, option);
   }
 
 
