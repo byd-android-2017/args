@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 命令行参数解析
@@ -22,9 +23,9 @@ public class Args {
    * 解释命令行参数
    *
    * @param optionsClass 目标对象类
-   * @param args 命令行参数
-   * @return  目标对象实例
-   * @param <T> 目标对象类
+   * @param args         命令行参数
+   * @param <T>          目标对象类
+   * @return 目标对象实例
    */
   @SuppressWarnings("unchecked")
   public static <T> T parse(Class<T> optionsClass, String... args) {
@@ -42,23 +43,25 @@ public class Args {
   }
 
   /**
-   *  解释构造器参数对应的值
+   * 解释构造器参数对应的值
    *
    * @param arguments 命令行参数列表
    * @param parameter 构造器方法参数
    * @return 构造器方法参数值
    */
   private static Object parseOptionArgument(List<String> arguments, Parameter parameter) {
-    Option option = parameter.getAnnotation(Option.class);
-    Object argValue = null;
-    if (parameter.getType() == boolean.class) {
-      argValue = parseBoolean(arguments, option);
-    } else if (parameter.getType() == int.class) {
-      argValue = parseInt(arguments, option);
-    }  else if (parameter.getType() == String.class) {
-      argValue = parseString(arguments, option);
+    Class<?> parameterType = parameter.getType();
+    OptionParser parser = null;
+    if (parameterType == boolean.class) {
+      parser = new BooleanOptionParser();
+    } else if (parameterType == int.class) {
+      parser = new IntOptionParser();
+    } else if (parameterType == String.class) {
+      parser = new StringOptionParser();
     }
-    return argValue;
+
+    Option option = parameter.getAnnotation(Option.class);
+    return Objects.nonNull(parser) ? parser.parse(arguments, option) : null;
   }
 
   interface OptionParser {
@@ -67,13 +70,14 @@ public class Args {
      * 解释目标对象构造器参数对应的命令行参数值
      *
      * @param arguments 命令行参数列表
-     * @param option 目标对象属性标注
+     * @param option    目标对象属性标注
      * @return 目标对象属性对应的命令行参数值
      */
     Object parse(List<String> arguments, Option option);
   }
 
   static class BooleanOptionParser implements OptionParser {
+
     @Override
     public Object parse(List<String> arguments, Option option) {
       Object argValue;
@@ -83,6 +87,7 @@ public class Args {
   }
 
   static class IntOptionParser implements OptionParser {
+
     @Override
     public Object parse(List<String> arguments, Option option) {
       Object argValue;
@@ -93,6 +98,7 @@ public class Args {
   }
 
   static class StringOptionParser implements OptionParser {
+
     @Override
     public Object parse(List<String> arguments, Option option) {
       Object argValue;
@@ -100,18 +106,6 @@ public class Args {
       argValue = arguments.get(argNameIndex + 1);
       return argValue;
     }
-  }
-
-  private static Object parseString(List<String> arguments, Option option) {
-    return new StringOptionParser().parse(arguments, option);
-  }
-
-  private static Object parseInt(List<String> arguments, Option option) {
-    return new IntOptionParser().parse(arguments, option);
-  }
-
-  private static Object parseBoolean(List<String> arguments, Option option) {
-    return new BooleanOptionParser().parse(arguments, option);
   }
 
 
