@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * 命令行参数解析
@@ -51,6 +51,21 @@ public class Args {
    */
   private static Object parseOptionArgument(List<String> arguments, Parameter parameter) {
     Class<?> parameterType = parameter.getType();
+    Optional<OptionParser> parserOptional = buildOptionParser(parameterType);
+    return parserOptional.map(parser -> {
+      Option option = parameter.getAnnotation(Option.class);
+      return parser.parse(arguments, option);
+    }).orElse(null);
+
+  }
+
+  /**
+   * 目标对象构造器参数类型构造相应的参数值解释器
+   *
+   * @param parameterType 目标对象构造器参数类型
+   * @return 参数值解释器
+   */
+  private static Optional<OptionParser> buildOptionParser(Class<?> parameterType) {
     OptionParser parser = null;
     if (parameterType == boolean.class) {
       parser = new BooleanOptionParser();
@@ -59,11 +74,12 @@ public class Args {
     } else if (parameterType == String.class) {
       parser = new StringOptionParser();
     }
-
-    Option option = parameter.getAnnotation(Option.class);
-    return Objects.nonNull(parser) ? parser.parse(arguments, option) : null;
+    return Optional.ofNullable(parser);
   }
 
+  /**
+   * 目标对象构造器参数类型对应的参数值解释器
+   */
   interface OptionParser {
 
     /**
