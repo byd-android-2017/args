@@ -52,14 +52,65 @@ public class Args {
     Option option = parameter.getAnnotation(Option.class);
     Object argValue = null;
     if (parameter.getType() == boolean.class) {
-      argValue = arguments.contains("-" + option.value());
+      argValue = parseBoolean(arguments, option);
     } else if (parameter.getType() == int.class) {
-      int argNameIndex = arguments.indexOf("-" + option.value());
-      argValue = Integer.valueOf(arguments.get(argNameIndex + 1));
+      argValue = parseInt(arguments, option);
     }  else if (parameter.getType() == String.class) {
-      int argNameIndex = arguments.indexOf("-" + option.value());
-      argValue = arguments.get(argNameIndex + 1);
+      argValue = parseString(arguments, option);
     }
+    return argValue;
+  }
+
+  interface OptionParser {
+
+    /**
+     * 解释目标对象构造器参数对应的命令行参数值
+     *
+     * @param arguments 命令行参数列表
+     * @param option 目标对象属性标注
+     * @return 目标对象属性对应的命令行参数值
+     */
+    Object parse(List<String> arguments, Option option);
+  }
+
+  static class BooleanOptionParser implements OptionParser {
+    @Override
+    public Object parse(List<String> arguments, Option option) {
+      return parseBoolean(arguments, option);
+    }
+  }
+
+  static class IntOptionParser implements OptionParser {
+    @Override
+    public Object parse(List<String> arguments, Option option) {
+      return parseInt(arguments, option);
+    }
+  }
+
+  static class StringOptionParser implements OptionParser {
+    @Override
+    public Object parse(List<String> arguments, Option option) {
+      return parseString(arguments, option);
+    }
+  }
+
+  private static Object parseString(List<String> arguments, Option option) {
+    Object argValue;
+    int argNameIndex = arguments.indexOf("-" + option.value());
+    argValue = arguments.get(argNameIndex + 1);
+    return argValue;
+  }
+
+  private static Object parseInt(List<String> arguments, Option option) {
+    Object argValue;
+    int argNameIndex = arguments.indexOf("-" + option.value());
+    argValue = Integer.valueOf(arguments.get(argNameIndex + 1));
+    return argValue;
+  }
+
+  private static Object parseBoolean(List<String> arguments, Option option) {
+    Object argValue;
+    argValue = arguments.contains("-" + option.value());
     return argValue;
   }
 
