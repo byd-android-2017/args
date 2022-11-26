@@ -12,9 +12,18 @@ class StringOptionParser implements OptionParser {
 
   @Override
   public Object parse(List<String> arguments, Option option) {
-    Object argValue;
     int argNameIndex = arguments.indexOf("-" + option.value());
-    argValue = arguments.get(argNameIndex + 1);
+    String argValue = arguments.get(argNameIndex + 1);
+    return parseValue(argValue);
+  }
+
+  /**
+   * 解释输入的参数值
+   *
+   * @param argValue 输入的参数值
+   * @return 返回解释器要求的类型
+   */
+  protected Object parseValue(String argValue) {
     return argValue;
   }
 }
