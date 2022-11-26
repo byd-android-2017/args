@@ -7,8 +7,8 @@ package geektime.tdd.args;
  */
 class IntOptionParser extends StringOptionParser {
 
-  @Override
-  protected Object parseValue(String argValue) {
-    return Integer.valueOf(argValue);
+  public IntOptionParser() {
+    super.parseValue = Integer::valueOf;
   }
+
 }

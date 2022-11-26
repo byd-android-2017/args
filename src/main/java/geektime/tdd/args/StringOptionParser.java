@@ -2,6 +2,7 @@ package geektime.tdd.args;
 
 import geektime.tdd.args.annotation.Option;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * 字符串类型命令行参数值解释器
@@ -10,20 +11,20 @@ import java.util.List;
  */
 class StringOptionParser implements OptionParser {
 
+  /**
+   * 解释输入的参数值的转换器函数
+   */
+  protected Function<String, Object> parseValue;
+
+  public StringOptionParser() {
+    this.parseValue = value -> value;
+  }
+
   @Override
   public Object parse(List<String> arguments, Option option) {
     int argNameIndex = arguments.indexOf("-" + option.value());
     String argValue = arguments.get(argNameIndex + 1);
-    return parseValue(argValue);
+    return parseValue.apply(argValue);
   }
 
-  /**
-   * 解释输入的参数值
-   *
-   * @param argValue 输入的参数值
-   * @return 返回解释器要求的类型
-   */
-  protected Object parseValue(String argValue) {
-    return argValue;
-  }
 }
