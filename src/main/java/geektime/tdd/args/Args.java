@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -60,21 +61,22 @@ public class Args {
   }
 
   /**
+   * 目标对象构造器参数类型构造对应参数值解释器注册器
+   */
+  private static final Map<Class<?>, OptionParser> OPTION_PARSER_REGISTER = Map.of(
+      boolean.class, new BooleanOptionParser(),
+      int.class, new IntOptionParser(),
+      String.class, new StringOptionParser()
+  );
+
+  /**
    * 目标对象构造器参数类型构造相应的参数值解释器
    *
    * @param parameterType 目标对象构造器参数类型
    * @return 参数值解释器
    */
   private static Optional<OptionParser> buildOptionParser(Class<?> parameterType) {
-    OptionParser parser = null;
-    if (parameterType == boolean.class) {
-      parser = new BooleanOptionParser();
-    } else if (parameterType == int.class) {
-      parser = new IntOptionParser();
-    } else if (parameterType == String.class) {
-      parser = new StringOptionParser();
-    }
-    return Optional.ofNullable(parser);
+    return Optional.ofNullable(OPTION_PARSER_REGISTER.get(parameterType));
   }
 
   /**
