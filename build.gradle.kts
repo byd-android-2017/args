@@ -13,6 +13,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.jetbrains:annotations:20.1.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version")
     testImplementation("org.assertj:assertj-core:$assertj_version")
 

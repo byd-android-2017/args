@@ -65,8 +65,8 @@ public class Args {
    */
   private static final Map<Class<?>, OptionParser> OPTION_PARSER_REGISTER = Map.of(
       boolean.class, new BooleanOptionParser(),
-      int.class, new IntOptionParser(),
-      String.class, new StringOptionParser()
+      int.class, new SingleValueOptionParser<>(Integer::valueOf),
+      String.class, new SingleValueOptionParser<>(argValue -> argValue)
   );
 
   /**
