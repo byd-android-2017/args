@@ -1,6 +1,6 @@
 package geektime.tdd.args;
 
-import static geektime.tdd.args.SingleValueOptionParser.createSingleValueOptionParser;
+import static geektime.tdd.args.OptionParsers.newSingleOption;
 import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +29,7 @@ class SingleValueOptionParserTest {
   // Integer -p 8080
   @Test
   void should_parse_int_as_option_value() {
-    final OptionParser<Integer> parser = createSingleValueOptionParser(0, Integer::parseInt);
+    final OptionParser<Integer> parser = newSingleOption(0, true, Integer::parseInt);
     final List<String> arguments = List.of("-p", "8080");
     final Option option = option("p");
     assertThat(parser.parse(arguments, option)).isEqualTo(8080);
@@ -39,7 +39,7 @@ class SingleValueOptionParserTest {
 
   @Test
   void should_parse_string_as_option_value() {
-    final OptionParser<String> parser = createSingleValueOptionParser("", identity());
+    final OptionParser<String> parser = newSingleOption("", true, identity());
     final List<String> arguments = List.of("-d", "/usr/logs");
     final Option option = option("d");
     assertThat(parser.parse(arguments, option)).isEqualTo("/usr/logs");
@@ -49,7 +49,7 @@ class SingleValueOptionParserTest {
   // - int -p 8080 8081
   @Test
   void should_not_accept_extra_argument_for_int_single_value_option() {
-    final OptionParser<Integer> parser = createSingleValueOptionParser(0, Integer::parseInt);
+    final OptionParser<Integer> parser = newSingleOption(0, true, Integer::parseInt);
     final List<String> arguments = List.of("-p", "8080", "8081");
     final Option option = option("p");
 
@@ -62,7 +62,7 @@ class SingleValueOptionParserTest {
   // - int -p 8080L
   @Test
   void should_throw_illegal_argument_exception_for_int_single_value_option() {
-    final OptionParser<Integer> parser = createSingleValueOptionParser(0, Integer::parseInt);
+    final OptionParser<Integer> parser = newSingleOption(0, true, Integer::parseInt);
     final List<String> arguments = List.of("-p", "8080L");
     final Option option = option("p");
 
@@ -76,7 +76,7 @@ class SingleValueOptionParserTest {
   @ParameterizedTest(name = "{index}) cmdLine:{0}")
   @ValueSource(strings = {"-p", "-p -l"})
   void should_not_accept_insufficient_argument_for_int_single_value_option(String cmdLine) {
-    final OptionParser<Integer> parser = createSingleValueOptionParser(0, Integer::parseInt);
+    final OptionParser<Integer> parser = newSingleOption(0, true, Integer::parseInt);
     final List<String> arguments = List.of(cmdLine.split(" "));
     final Option option = option("p");
 
@@ -88,7 +88,7 @@ class SingleValueOptionParserTest {
   // - string -d /usr/logs /usr/vars
   @Test
   void should_not_accept_extra_argument_for_string_single_value_option() {
-    final OptionParser<String> parser = createSingleValueOptionParser("", identity());
+    final OptionParser<String> parser = newSingleOption("", true, identity());
     final List<String> arguments = List.of("-d", "/usr/logs", "/usr/vars");
     final Option option = option("d");
 
@@ -102,7 +102,7 @@ class SingleValueOptionParserTest {
   @ParameterizedTest(name = "{index}) cmdLine:{0}")
   @ValueSource(strings = {"-d", "-d -l"})
   void should_not_accept_insufficient_argument_for_string_single_value_option(String cmdLine) {
-    final OptionParser<String> parser = createSingleValueOptionParser("", identity());
+    final OptionParser<String> parser = newSingleOption("", true, identity());
     final List<String> arguments = List.of(cmdLine.split(" "));
     final Option option = option("d");
 
@@ -116,7 +116,7 @@ class SingleValueOptionParserTest {
   // -int :0
   @Test
   void should_set_default_value_to_0_not_present_int_value_option() {
-    final OptionParser<Integer> parser = createSingleValueOptionParser(0, Integer::parseInt);
+    final OptionParser<Integer> parser = newSingleOption(0, true, Integer::parseInt);
     final List<String> arguments = Collections.emptyList();
     final Option option = option("p");
 
@@ -128,7 +128,7 @@ class SingleValueOptionParserTest {
   //  - string ""
   @Test
   void should_set_default_value_to_0_not_present_str_value_option() {
-    final OptionParser<String> parser = createSingleValueOptionParser("", identity());
+    final OptionParser<String> parser = newSingleOption("", true, identity());
     final List<String> arguments = Collections.emptyList();
     final Option option = option("s");
 

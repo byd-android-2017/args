@@ -1,5 +1,6 @@
 package geektime.tdd.args;
 
+import static geektime.tdd.args.OptionParsers.newFlagOption;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -27,7 +28,7 @@ class BooleanOptionParserTest {
   // Bool -1
   @Test
   void should_set_boolean_option_to_true_if_flag_present() {
-    final OptionParser<Boolean> parser = new BooleanOptionParser();
+    final OptionParser<Boolean> parser = newFlagOption();
     Boolean argValue = parser.parse(List.of("-l"), option());
     assertThat(argValue).isTrue();
   }
@@ -38,7 +39,7 @@ class BooleanOptionParserTest {
   @ParameterizedTest
   @ValueSource(strings = {"-l t", "-l t f"})
   void should_not_accept_extra_argument_for_boolean_option(String cmdLine) {
-    final OptionParser<Boolean> parser = new BooleanOptionParser();
+    final OptionParser<Boolean> parser = newFlagOption();
     final List<String> arguments = List.of(cmdLine.split(" "));
     final Option option = option();
 
@@ -52,7 +53,7 @@ class BooleanOptionParserTest {
    // - bool : false
    @Test
    void should_set_default_value_to_false_when_flag_option_not_present() {
-     final OptionParser<Boolean> parser = new BooleanOptionParser();
+     final OptionParser<Boolean> parser = newFlagOption();
      Boolean argumentValue = parser.parse(Collections.emptyList(), option());
      assertThat(argumentValue).isFalse();
    }
