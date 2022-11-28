@@ -36,18 +36,14 @@ class SingleValueOptionParser<T> implements OptionParser<T> {
 
   @Override
   public T parse(List<String> arguments, Option option) {
-    int flagIndex = arguments.indexOf("-" + option.value());
+    final var flagIndex = arguments.indexOf("-" + option.value());
 
     // 命令行参数标识不存在时，返回默认值
     if (flagIndex == -1) {
       return defaultValue;
     }
 
-    int nextFlagIndex = IntStream.range(flagIndex + 1, arguments.size())
-        .filter(index -> arguments.get(index).startsWith("-"))
-        .findFirst()
-        .orElse(arguments.size());
-    List<String> flagValues = arguments.subList(flagIndex + 1, nextFlagIndex);
+    final var flagValues = extractFlagValue(arguments, flagIndex);
 
     if (flagValues.isEmpty()) {
       throw new InsufficientArgumentsException(option.value());
@@ -61,6 +57,23 @@ class SingleValueOptionParser<T> implements OptionParser<T> {
       throw new IllegalArgumentException(option.value() + "对应的参数值:"
          + flagValues.get(0)  + "格式不对", e);
     }
+  }
+
+  /**
+   * 提取命令行指定选项参数值列表
+   *
+   * @param arguments 参数值列表
+   * @param flagIndex 选项索引号
+   * @return 选项参数值列表（原始值）
+   */
+  @NotNull
+  private List<String> extractFlagValue(List<String> arguments, int flagIndex) {
+    final var size = arguments.size();
+    final var nextFlagIndex = IntStream.range(flagIndex + 1, size)
+        .filter(index -> arguments.get(index).startsWith("-"))
+        .findFirst()
+        .orElse(size);
+    return arguments.subList(flagIndex + 1, nextFlagIndex);
   }
 
 }
