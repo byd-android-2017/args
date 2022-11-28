@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author 李小平
  */
-class SingleValueOptionParser<T> implements OptionParser {
+class SingleValueOptionParser<T> implements OptionParser<T> {
 
   /**
    * 解释输入的参数值的转换器函数
@@ -24,7 +24,7 @@ class SingleValueOptionParser<T> implements OptionParser {
   }
 
   @Override
-  public Object parse(List<String> arguments, Option option) {
+  public T parse(List<String> arguments, Option option) {
     int argNameIndex = arguments.indexOf("-" + option.value());
     String argValue = arguments.get(argNameIndex + 1);
     return parseValueFun.apply(argValue);

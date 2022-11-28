@@ -5,8 +5,9 @@ import java.util.List;
 
 /**
  * 目标对象构造器参数类型对应的参数值解释器
+ * @param <T> 命令行参数值解释后的类型
  */
-interface OptionParser {
+interface OptionParser<T> {
 
   /**
    * 解释目标对象构造器参数对应的命令行参数值
@@ -15,5 +16,5 @@ interface OptionParser {
    * @param option    目标对象属性标注
    * @return 目标对象属性对应的命令行参数值
    */
-  Object parse(List<String> arguments, Option option);
+  T parse(List<String> arguments, Option option);
 }
