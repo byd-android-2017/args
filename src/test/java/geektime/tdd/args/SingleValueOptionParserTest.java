@@ -25,6 +25,26 @@ import org.junit.jupiter.params.provider.ValueSource;
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 class SingleValueOptionParserTest {
 
+  // happy path:
+  // Integer -p 8080
+  @Test
+  void should_parse_int_as_option_value() {
+    final OptionParser<Integer> parser = createSingleValueOptionParser(0, Integer::parseInt);
+    final List<String> arguments = List.of("-p", "8080");
+    final Option option = option("p");
+    assertThat(parser.parse(arguments, option)).isEqualTo(8080);
+  }
+
+  // String -d /usr/logs
+
+  @Test
+  void should_parse_string_as_option_value() {
+    final OptionParser<String> parser = createSingleValueOptionParser("", identity());
+    final List<String> arguments = List.of("-d", "/usr/logs");
+    final Option option = option("d");
+    assertThat(parser.parse(arguments, option)).isEqualTo("/usr/logs");
+  }
+
   // sad path:
   // - int -p 8080 8081
   @Test
@@ -36,6 +56,19 @@ class SingleValueOptionParserTest {
     TooManyArgumentsException e = assertThrows(TooManyArgumentsException.class,
         () -> parser.parse(arguments, option));
     assertThat(e.getOption()).isEqualTo("p");
+  }
+
+  // 错误的数值格式
+  // - int -p 8080L
+  @Test
+  void should_throw_exception_for_int_single_value_option() {
+    final OptionParser<Integer> parser = createSingleValueOptionParser(0, Integer::parseInt);
+    final List<String> arguments = List.of("-p", "8080L");
+    final Option option = option("p");
+
+    IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+        () -> parser.parse(arguments, option));
+    assertThat(e.getMessage()).startsWith("p");
   }
 
   // - int -p/ -p -l
@@ -64,6 +97,7 @@ class SingleValueOptionParserTest {
     assertThat(e.getOption()).isEqualTo("d");
   }
 
+  // sad path:
   // - string -d / -d -l
   @ParameterizedTest(name = "{index}) cmdLine:{0}")
   @ValueSource(strings = {"-d", "-d -l"})
@@ -76,6 +110,10 @@ class SingleValueOptionParserTest {
         () -> parser.parse(arguments, option));
     assertThat(e.getOption()).isEqualTo("d");
   }
+
+
+
+
 
   // default value:
   // -int :0

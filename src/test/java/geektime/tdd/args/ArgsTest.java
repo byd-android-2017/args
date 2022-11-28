@@ -1,8 +1,13 @@
 package geektime.tdd.args;
 
+import static geektime.tdd.args.SingleValueOptionParser.createSingleValueOptionParser;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import geektime.tdd.args.annotation.Option;
+import geektime.tdd.args.exception.LackOptionException;
+import geektime.tdd.args.exception.LackParserException;
+import java.util.List;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -19,50 +24,6 @@ class ArgsTest {
   // [-l], [-p, 8080], [-d, /usr/logs]
   // {-l:[]}, {-p: [8080]}, {-d: [/usr/logs]}
 
-  // Single Option:
-  // Bool -1
-  @Test
-  void should_set_boolean_option_to_true_if_flag_present() {
-    BooleanOption option = Args.parse(BooleanOption.class, "-l");
-    assertThat(option)
-        .extracting(BooleanOption::logging)
-        .isEqualTo(true);
-  }
-
-  @Test
-  void should_set_boolean_option_to_false_if_flag_not_present() {
-    BooleanOption option = Args.parse(BooleanOption.class);
-    assertThat(option)
-        .extracting(BooleanOption::logging)
-        .isEqualTo(false);
-  }
-
-  record BooleanOption(@Option("l")boolean logging) {}
-
-  // Integer -p 8080
-
-  @Test
-  void should_parse_int_as_option_value() {
-    IntOption option = Args.parse(IntOption.class, "-p", "8080");
-    assertThat(option)
-        .extracting(IntOption::port)
-        .isEqualTo(8080);
-  }
-
-  record IntOption(@Option("p")int port) {}
-
-  // String -d /usr/logs
-
-  @Test
-  void should_parse_string_as_option_value() {
-    StringOption option = Args.parse(StringOption.class, "-d", "/usr/logs");
-    assertThat(option)
-        .extracting(StringOption::directory)
-        .isEqualTo("/usr/logs");
-  }
-
-  record StringOption(@Option("d") String directory) {}
-
   // multi options: -l -p 8080 -d /usr/log
 
   @Test
@@ -77,15 +38,32 @@ class ArgsTest {
       @Option("p")int port,
       @Option("d") String directory){}
 
+  @Test
+  void should_throw_illegal_exception_if_option_annotation_not_present() {
+    LackOptionException exception = assertThrows(LackOptionException.class,
+        () -> Args.parse(MultiOptionsLackOption.class,
+            "-l", "-p", "8088", "-d", "/usr/logs"));
+    assertThat(exception.getOption()).contains("port");
+  }
+
+  public record MultiOptionsLackOption(
+      @Option("l")boolean logging,
+      int port,
+      @Option("d") String directory){}
 
 
-  // default value
-  // TODO: - bool : false
-  // TODO: -int :0
-  // TODO: - string ""
+  // ：不支持的类型
+  @Test
+  void should_throw_insufficient_argument_for_long_single_value_option() {
+    LackParserException exception = assertThrows(LackParserException.class,
+        () -> Args.parse(MultiOptionsLackParser.class,
+            "-l", "-p", "8088", "-d", "/usr/logs"));
+    assertThat(exception.getOption()).contains("port");
+  }
 
-
-
-
+  public record MultiOptionsLackParser(
+      @Option("l")boolean logging,
+      @Option("p") Long port,
+      @Option("d") String directory){}
 
 }

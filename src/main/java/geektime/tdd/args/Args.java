@@ -1,7 +1,11 @@
 package geektime.tdd.args;
 
+import static geektime.tdd.args.SingleValueOptionParser.createSingleValueOptionParser;
+
 import geektime.tdd.args.annotation.Option;
 import geektime.tdd.args.exception.ArgumentParseException;
+import geektime.tdd.args.exception.LackOptionException;
+import geektime.tdd.args.exception.LackParserException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
@@ -54,9 +58,11 @@ public class Args {
     Class<?> parameterType = parameter.getType();
     Optional<OptionParser<?>> parserOptional = buildOptionParser(parameterType);
     return parserOptional.map(parser -> {
-      Option option = parameter.getAnnotation(Option.class);
-      return parser.parse(arguments, option);
-    }).orElse(null);
+      var optionOptional = Optional.ofNullable(parameter.getAnnotation(Option.class));
+      return optionOptional.map(option -> parser.parse(arguments, option))
+          .orElseThrow(() -> new LackOptionException(parameter.getName() + "缺少@Option."));
+    }).orElseThrow(() -> new LackParserException("类型：" + parameterType.getCanonicalName()
+        + "的" + parameter.getName() + "没有注册解释器"));
 
   }
 
@@ -65,8 +71,8 @@ public class Args {
    */
   private static final Map<Class<?>, OptionParser<?>> OPTION_PARSER_REGISTER = Map.of(
       boolean.class, new BooleanOptionParser(),
-      int.class, SingleValueOptionParser.createSingleValueOptionParser(0, Integer::valueOf),
-      String.class, SingleValueOptionParser.createSingleValueOptionParser("", argValue -> argValue)
+      int.class, createSingleValueOptionParser(0, Integer::valueOf),
+      String.class, createSingleValueOptionParser("", argValue -> argValue)
   );
 
   /**

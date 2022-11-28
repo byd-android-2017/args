@@ -55,7 +55,12 @@ class SingleValueOptionParser<T> implements OptionParser<T> {
       throw new TooManyArgumentsException(option.value());
     }
 
-    return parseValueFun.apply(flagValues.get(0));
+    try {
+      return parseValueFun.apply(flagValues.get(0));
+    } catch (Exception e) {
+      throw new IllegalArgumentException(option.value() + "对应的参数值:"
+         + flagValues.get(0)  + "格式不对", e);
+    }
   }
 
 }
