@@ -61,7 +61,7 @@ class SingleValueOptionParserTest {
   // 错误的数值格式
   // - int -p 8080L
   @Test
-  void should_throw_exception_for_int_single_value_option() {
+  void should_throw_illegal_argument_exception_for_int_single_value_option() {
     final OptionParser<Integer> parser = createSingleValueOptionParser(0, Integer::parseInt);
     final List<String> arguments = List.of("-p", "8080L");
     final Option option = option("p");
@@ -85,7 +85,7 @@ class SingleValueOptionParserTest {
     assertThat(e.getOption()).isEqualTo("p");
   }
 
-  // - string-d /usr/logs /usr/vars
+  // - string -d /usr/logs /usr/vars
   @Test
   void should_not_accept_extra_argument_for_string_single_value_option() {
     final OptionParser<String> parser = createSingleValueOptionParser("", identity());
@@ -110,9 +110,6 @@ class SingleValueOptionParserTest {
         () -> parser.parse(arguments, option));
     assertThat(e.getOption()).isEqualTo("d");
   }
-
-
-
 
 
   // default value:

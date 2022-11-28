@@ -37,7 +37,7 @@ class ArgsTest {
       @Option("d") String directory){}
 
   @Test
-  void should_throw_illegal_exception_if_option_annotation_not_present() {
+  void should_throw_lack_option_exception_if_option_annotation_not_present() {
     LackOptionException exception = assertThrows(LackOptionException.class,
         () -> Args.parse(MultiOptionsLackOption.class,
             "-l", "-p", "8088", "-d", "/usr/logs"));
@@ -52,7 +52,7 @@ class ArgsTest {
 
   // ：不支持的类型
   @Test
-  void should_throw_insufficient_argument_for_long_single_value_option() {
+  void should_throw_lack_parser_exception_for_long_single_value_option() {
     LackParserException exception = assertThrows(LackParserException.class,
         () -> Args.parse(MultiOptionsLackParser.class,
             "-l", "-p", "8088", "-d", "/usr/logs"));
