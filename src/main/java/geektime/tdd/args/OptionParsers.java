@@ -31,7 +31,7 @@ class OptionParsers {
   public static <T> OptionParser<T> unary(T defaultValue,
       @NotNull Function<String, T> parseValueFun) {
     return (arguments, option) -> fetchOptionValue(
-        arguments, option, true, defaultValue, parseValueFun);
+        arguments, option, 1, defaultValue, parseValueFun);
   }
 
 
@@ -40,7 +40,7 @@ class OptionParsers {
    */
   public static OptionParser<Boolean> bool() {
     return (arguments, option) -> fetchOptionValue(
-        arguments, option, false, false, it -> true);
+        arguments, option, 0, false, it -> true);
   }
 
   /**
@@ -80,7 +80,7 @@ class OptionParsers {
   }
 
   private static <T> T fetchOptionValue(List<String> arguments, Option option,
-      boolean requiredFlagValue, T defaultValue,
+      int expectedSize, T defaultValue,
       @NotNull Function<String, T> parseValueFun) {
     final var flagIndex = arguments.indexOf("-" + option.value());
 
@@ -92,22 +92,14 @@ class OptionParsers {
     final var flagValuesOptional = extractFlagValue(
         arguments, flagIndex);
     return flagValuesOptional.map(flagValues -> {
-      if (requiredFlagValue) {
-        validUnaryOptionValue(option, flagValues);
-        try {
-          return parseValueFun.apply(flagValues.get(0));
-        } catch (Exception e) {
-          throw throwIllegalArgumentException(option, flagValues, e);
-        }
-      } else {
-        validBoolOptionValue(option, flagValues);
+        validOptionValue(option, flagValues, expectedSize);
 
         try {
-          return parseValueFun.apply(null);
+          return parseValueFun.apply(flagValues.isEmpty() ? null : flagValues.get(0));
         } catch (Exception e) {
           throw throwIllegalArgumentException(option, flagValues, e);
         }
-      }
+
     }).orElse(defaultValue);
   }
 
@@ -117,19 +109,18 @@ class OptionParsers {
     return new IllegalArgumentException(option.value() + "对应的参数值:"
         + flagValues + "格式不对", e);
   }
+  
+  private static void validOptionValue(Option option, List<String> flagValues, int expectedSize) {
+    int size = flagValues.size();
 
-  private static void validBoolOptionValue(Option option, List<String> flagValues) {
-    if (!flagValues.isEmpty()) {
-      throw new TooManyArgumentsException(option.value());
-    }
-  }
-
-  private static void validUnaryOptionValue(Option option, List<String> flagValues) {
-    if (flagValues.isEmpty()) {
+    if (size < expectedSize) {
       throw new InsufficientArgumentsException(option.value());
-    } else if (flagValues.size() > 1) {
+    }
+
+    if (size > expectedSize) {
       throw new TooManyArgumentsException(option.value());
     }
+
   }
 
   /**
@@ -154,7 +145,6 @@ class OptionParsers {
           .findFirst()
           .orElse(size);
       values = arguments.subList(flagIndex + 1, nextFlagIndex);
-
     }
 
     return Optional.ofNullable(values);
