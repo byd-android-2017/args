@@ -7,6 +7,7 @@ import java.util.List;
  * 目标对象构造器参数类型对应的参数值解释器
  * @param <T> 命令行参数值解释后的类型
  */
+@FunctionalInterface
 interface OptionParser<T> {
 
   /**
