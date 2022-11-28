@@ -1,6 +1,7 @@
 package geektime.tdd.args;
 
 import static geektime.tdd.args.OptionParsers.bool;
+import static geektime.tdd.args.OptionParsers.list;
 import static geektime.tdd.args.OptionParsers.unary;
 import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +30,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 class OptionParsersTest {
 
   @Nested
-  class FlagOptionParserTest {
+  class BoolOptionParserTest {
     // Happy path:
     // Bool -1
     @Test
@@ -67,7 +68,7 @@ class OptionParsersTest {
 
 
   @Nested
-  class SingleValueOptionParserTest {
+  class UnaryValueOptionParserTest {
 
     // happy path:
     // Integer -p 8080
@@ -180,6 +181,23 @@ class OptionParsersTest {
       assertThat(argVaule).isEmpty();
     }
 
+  }
+
+
+  @Nested
+  class ListValueOptionParserTest{
+    // : -g "this" "is" {"this", is"}
+    @Test
+    void should_parse_string_list_as_option_value() {
+      final OptionParser<String[]> parser = list(new String[0], String[]::new, identity());
+      final List<String> arguments = List.of("-g", "this", "is");
+      final Option option = option("g");
+      assertThat(parser.parse(arguments, option)).isEqualTo(new String[] {"this", "is"});
+    }
+
+    //TODO: default value []
+
+    //TODO: -d a throw exception
   }
 
   Option option(String value) {
