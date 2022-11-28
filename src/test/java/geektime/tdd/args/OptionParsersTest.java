@@ -1,7 +1,7 @@
 package geektime.tdd.args;
 
-import static geektime.tdd.args.OptionParsers.newFlagOption;
-import static geektime.tdd.args.OptionParsers.newSingleOption;
+import static geektime.tdd.args.OptionParsers.bool;
+import static geektime.tdd.args.OptionParsers.unary;
 import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,7 +34,7 @@ class OptionParsersTest {
     // Bool -1
     @Test
     void should_set_boolean_option_to_true_if_flag_present() {
-      final OptionParser<Boolean> parser = newFlagOption();
+      final OptionParser<Boolean> parser = bool();
       Boolean argValue = parser.parse(List.of("-l"), option("l"));
       assertThat(argValue).isTrue();
     }
@@ -45,7 +45,7 @@ class OptionParsersTest {
     @ParameterizedTest
     @ValueSource(strings = {"-l t", "-l t f"})
     void should_not_accept_extra_argument_for_boolean_option(String cmdLine) {
-      final OptionParser<Boolean> parser = newFlagOption();
+      final OptionParser<Boolean> parser = bool();
       final List<String> arguments = List.of(cmdLine.split(" "));
       final Option option = option("l");
 
@@ -59,7 +59,7 @@ class OptionParsersTest {
     // - bool : false
     @Test
     void should_set_default_value_to_false_when_flag_option_not_present() {
-      final OptionParser<Boolean> parser = newFlagOption();
+      final OptionParser<Boolean> parser = bool();
       Boolean argumentValue = parser.parse(Collections.emptyList(), option("l"));
       assertThat(argumentValue).isFalse();
     }
@@ -73,7 +73,7 @@ class OptionParsersTest {
     // Integer -p 8080
     @Test
     void should_parse_int_as_option_value() {
-      final OptionParser<Integer> parser = newSingleOption(0, true, Integer::parseInt);
+      final OptionParser<Integer> parser = unary(0, Integer::parseInt);
       final List<String> arguments = List.of("-p", "8080");
       final Option option = option("p");
       assertThat(parser.parse(arguments, option)).isEqualTo(8080);
@@ -83,7 +83,7 @@ class OptionParsersTest {
 
     @Test
     void should_parse_string_as_option_value() {
-      final OptionParser<String> parser = newSingleOption("", true, identity());
+      final OptionParser<String> parser = unary("", identity());
       final List<String> arguments = List.of("-d", "/usr/logs");
       final Option option = option("d");
       assertThat(parser.parse(arguments, option)).isEqualTo("/usr/logs");
@@ -93,7 +93,7 @@ class OptionParsersTest {
     // - int -p 8080 8081
     @Test
     void should_not_accept_extra_argument_for_int_single_value_option() {
-      final OptionParser<Integer> parser = newSingleOption(0, true, Integer::parseInt);
+      final OptionParser<Integer> parser = unary(0, Integer::parseInt);
       final List<String> arguments = List.of("-p", "8080", "8081");
       final Option option = option("p");
 
@@ -106,7 +106,7 @@ class OptionParsersTest {
     // - int -p 8080L
     @Test
     void should_throw_illegal_argument_exception_for_int_single_value_option() {
-      final OptionParser<Integer> parser = newSingleOption(0, true, Integer::parseInt);
+      final OptionParser<Integer> parser = unary(0, Integer::parseInt);
       final List<String> arguments = List.of("-p", "8080L");
       final Option option = option("p");
 
@@ -120,7 +120,7 @@ class OptionParsersTest {
     @ParameterizedTest(name = "{index}) cmdLine:{0}")
     @ValueSource(strings = {"-p", "-p -l"})
     void should_not_accept_insufficient_argument_for_int_single_value_option(String cmdLine) {
-      final OptionParser<Integer> parser = newSingleOption(0, true, Integer::parseInt);
+      final OptionParser<Integer> parser = unary(0, Integer::parseInt);
       final List<String> arguments = List.of(cmdLine.split(" "));
       final Option option = option("p");
 
@@ -132,7 +132,7 @@ class OptionParsersTest {
     // - string -d /usr/logs /usr/vars
     @Test
     void should_not_accept_extra_argument_for_string_single_value_option() {
-      final OptionParser<String> parser = newSingleOption("", true, identity());
+      final OptionParser<String> parser = unary("", identity());
       final List<String> arguments = List.of("-d", "/usr/logs", "/usr/vars");
       final Option option = option("d");
 
@@ -146,7 +146,7 @@ class OptionParsersTest {
     @ParameterizedTest(name = "{index}) cmdLine:{0}")
     @ValueSource(strings = {"-d", "-d -l"})
     void should_not_accept_insufficient_argument_for_string_single_value_option(String cmdLine) {
-      final OptionParser<String> parser = newSingleOption("", true, identity());
+      final OptionParser<String> parser = unary("", identity());
       final List<String> arguments = List.of(cmdLine.split(" "));
       final Option option = option("d");
 
@@ -160,7 +160,7 @@ class OptionParsersTest {
     // -int :0
     @Test
     void should_set_default_value_to_0_not_present_int_value_option() {
-      final OptionParser<Integer> parser = newSingleOption(0, true, Integer::parseInt);
+      final OptionParser<Integer> parser = unary(0, Integer::parseInt);
       final List<String> arguments = Collections.emptyList();
       final Option option = option("p");
 
@@ -172,7 +172,7 @@ class OptionParsersTest {
     //  - string ""
     @Test
     void should_set_default_value_to_0_not_present_str_value_option() {
-      final OptionParser<String> parser = newSingleOption("", true, identity());
+      final OptionParser<String> parser = unary("", identity());
       final List<String> arguments = Collections.emptyList();
       final Option option = option("s");
 

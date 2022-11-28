@@ -1,7 +1,7 @@
 package geektime.tdd.args;
 
-import static geektime.tdd.args.OptionParsers.newFlagOption;
-import static geektime.tdd.args.OptionParsers.newSingleOption;
+import static geektime.tdd.args.OptionParsers.bool;
+import static geektime.tdd.args.OptionParsers.unary;
 
 import geektime.tdd.args.annotation.Option;
 import geektime.tdd.args.exception.ArgumentParseException;
@@ -72,9 +72,9 @@ public class Args {
    * 目标对象构造器参数类型构造对应参数值解释器注册器
    */
   private static final Map<Class<?>, OptionParser<?>> OPTION_PARSER_REGISTER = Map.of(
-      boolean.class, newFlagOption(),
-      int.class, newSingleOption(0, true, Integer::valueOf),
-      String.class, newSingleOption("", true, Function.identity())
+      boolean.class, bool(),
+      int.class, unary(0, Integer::valueOf),
+      String.class, unary("", Function.identity())
   );
 
   /**

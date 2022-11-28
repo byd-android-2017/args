@@ -20,29 +20,22 @@ class OptionParsers {
   /**
    * 创建单值命令行解释器
    *
-   * @param defaultValue 命令行选项默认值
-   * @param requiredFlagValue 命令行选项是否需要值
+   * @param <T>           选项值类型
+   * @param defaultValue  命令行选项默认值
    * @param parseValueFun 选项值解释器
    * @return 选项解释器
-   * @param <T> 选项值类型
    */
-  public static <T> OptionParser<T> newSingleOption(T defaultValue,
-      boolean requiredFlagValue, @NotNull Function<String, T> parseValueFun) {
+  public static <T> OptionParser<T> unary(T defaultValue,
+      @NotNull Function<String, T> parseValueFun) {
     return (arguments, option) -> fetchOptionValue(
-        arguments, option, requiredFlagValue, defaultValue, parseValueFun);
+        arguments, option, true, defaultValue, parseValueFun);
   }
 
   /**
    * 创建flag命令行解释器
    *
-   * @param defaultValue 命令行选项默认值
    */
-  public static OptionParser<Boolean> newFlagOption(Boolean defaultValue) {
-    return (arguments, option) -> fetchOptionValue(
-        arguments, option, false, defaultValue, it -> true);
-  }
-
-  public static OptionParser<Boolean> newFlagOption() {
+  public static OptionParser<Boolean> bool() {
     return (arguments, option) -> fetchOptionValue(
         arguments, option, false, false, it -> true);
   }
