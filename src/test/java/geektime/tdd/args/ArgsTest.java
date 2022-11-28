@@ -77,10 +77,7 @@ class ArgsTest {
       @Option("p")int port,
       @Option("d") String directory){}
 
-  // sad path:
-  // TODO: -bool -l t / -l t f
-  // TODO: - int -p / -p 8088 8081
-  // TODO: - string -d/ -d /usr/logs /usr/vars
+
 
   // default value
   // TODO: - bool : false

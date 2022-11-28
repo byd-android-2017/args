@@ -1,5 +1,8 @@
 val junit_jupiter_version: String by project
 val assertj_version: String by project
+val lombok_version: String by project
+val jetbrains_annotations_version: String by project
+
 
 plugins {
     id("java")
@@ -13,7 +16,9 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains:annotations:20.1.0")
+    compileOnly("org.jetbrains:annotations:$jetbrains_annotations_version")
+    compileOnly("org.projectlombok:lombok:$lombok_version")
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version")
     testImplementation("org.assertj:assertj-core:$assertj_version")
 

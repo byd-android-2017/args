@@ -1,6 +1,7 @@
 package geektime.tdd.args;
 
 import geektime.tdd.args.annotation.Option;
+import geektime.tdd.args.exception.TooManyArgumentsException;
 import java.util.List;
 
 /**
@@ -11,7 +12,17 @@ import java.util.List;
 class BooleanOptionParser implements OptionParser<Boolean> {
 
   @Override
-  public Boolean parse(List<String> arguments, Option option) {
-    return arguments.contains("-" + option.value());
+  public Boolean parse(List<String> arguments, Option option) throws TooManyArgumentsException {
+    // -bool -l t / -l t f
+    int flagIndex = arguments.indexOf("-" + option.value());
+
+    int nextElementIndex = flagIndex + 1;
+    boolean isNotEndOfList = nextElementIndex < arguments.size();
+    boolean isFollowingArgument =
+        isNotEndOfList && !arguments.get(nextElementIndex).startsWith("-");
+    if (isFollowingArgument) {
+      throw new TooManyArgumentsException(option.value());
+    }
+    return flagIndex > -1;
   }
 }
