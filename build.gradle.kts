@@ -20,6 +20,7 @@ dependencies {
     compileOnly("org.projectlombok:lombok:$lombok_version")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$junit_jupiter_version")
     testImplementation("org.assertj:assertj-core:$assertj_version")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junit_jupiter_version")

@@ -52,7 +52,7 @@ public class Args {
    */
   private static Object parseOptionArgument(List<String> arguments, Parameter parameter) {
     Class<?> parameterType = parameter.getType();
-    Optional<OptionParser> parserOptional = buildOptionParser(parameterType);
+    Optional<OptionParser<?>> parserOptional = buildOptionParser(parameterType);
     return parserOptional.map(parser -> {
       Option option = parameter.getAnnotation(Option.class);
       return parser.parse(arguments, option);
@@ -63,10 +63,10 @@ public class Args {
   /**
    * 目标对象构造器参数类型构造对应参数值解释器注册器
    */
-  private static final Map<Class<?>, OptionParser> OPTION_PARSER_REGISTER = Map.of(
+  private static final Map<Class<?>, OptionParser<?>> OPTION_PARSER_REGISTER = Map.of(
       boolean.class, new BooleanOptionParser(),
-      int.class, new SingleValueOptionParser<>(Integer::valueOf),
-      String.class, new SingleValueOptionParser<>(argValue -> argValue)
+      int.class, SingleValueOptionParser.createSingleValueOptionParser(0, Integer::valueOf),
+      String.class, SingleValueOptionParser.createSingleValueOptionParser("", argValue -> argValue)
   );
 
   /**
@@ -75,7 +75,7 @@ public class Args {
    * @param parameterType 目标对象构造器参数类型
    * @return 参数值解释器
    */
-  private static Optional<OptionParser> buildOptionParser(Class<?> parameterType) {
+  private static  Optional<OptionParser<?>> buildOptionParser(Class<?> parameterType) {
     return Optional.ofNullable(OPTION_PARSER_REGISTER.get(parameterType));
   }
 
