@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import geektime.tdd.args.annotation.Option;
+import geektime.tdd.args.exception.ArgumentParseException;
 import geektime.tdd.args.exception.InsufficientArgumentsException;
 import geektime.tdd.args.exception.TooManyArgumentsException;
 import java.lang.annotation.Annotation;
@@ -188,16 +189,42 @@ class OptionParsersTest {
   class ListValueOptionParserTest{
     // : -g "this" "is" {"this", is"}
     @Test
-    void should_parse_string_list_as_option_value() {
+    void should_parse_string_array_as_option_value() {
       final OptionParser<String[]> parser = list(new String[0], String[]::new, identity());
       final List<String> arguments = List.of("-g", "this", "is");
       final Option option = option("g");
       assertThat(parser.parse(arguments, option)).isEqualTo(new String[] {"this", "is"});
     }
 
-    //TODO: default value []
+    @Test
+    void should_parse_int_array_as_option_value() {
+      final var parser = list(new Integer[0], Integer[]::new, Integer::parseInt);
+      final var arguments = List.of("-g", "12", "13", "-14", "178");
+      final var option = option("g");
+      assertThat(parser.parse(arguments, option)).isEqualTo(new Integer[] {12, 13, -14, 178});
+    }
 
-    //TODO: -d a throw exception
+    // default value []
+
+    @Test
+    void should_return_default_string_array_when_option_lack() {
+      final OptionParser<String[]> parser = list(new String[0], String[]::new, identity());
+      final List<String> arguments = List.of();
+      final Option option = option("g");
+      assertThat(parser.parse(arguments, option)).isEqualTo(new String[0]);
+    }
+
+    //-d a throw exception
+
+    @Test
+    void should_throw_default_exception__when_argument_invalid() {
+      final OptionParser<Integer[]> parser = list(new Integer[0], Integer[]::new, Integer::parseInt);
+      final List<String> arguments = List.of("-d", "123", "123c");
+      final Option option = option("d");
+      IllegalArgumentException exception = assertThrows(
+          IllegalArgumentException.class, () -> parser.parse(arguments, option));
+      assertThat(exception.getMessage()).startsWith(option.value());
+    }
   }
 
   Option option(String value) {

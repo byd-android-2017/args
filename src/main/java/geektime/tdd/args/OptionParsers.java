@@ -137,7 +137,7 @@ class OptionParsers {
       final var size = arguments.size();
 
       final var nextFlagIndex = IntStream.range(flagIndex + 1, size)
-          .filter(index -> arguments.get(index).startsWith("-"))
+          .filter(index -> arguments.get(index).matches("^-[a-zA-Z_]+$"))
           .findFirst()
           .orElse(size);
       values = arguments.subList(flagIndex + 1, nextFlagIndex);

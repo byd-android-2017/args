@@ -64,4 +64,18 @@ class ArgsTest {
       @Option("p") Long port,
       @Option("d") String directory){}
 
+  // -g this is a list -d 1 2 -3 5
+  @Test
+  void should_parse_arrays_options() {
+    ArrayOptions options = Args.parse(ArrayOptions.class,
+        "-g", "this", "is","a", "list", "-d", "1", "2", "-3", "5");
+    assertThat(options.group).isEqualTo(new String[]{"this", "is","a", "list"});
+    assertThat(options.decimals).isEqualTo(new Integer[]{1, 2, -3, 5});
+  }
+
+  record ArrayOptions(
+      @Option("g") String[] group,
+      @Option("d") Integer[] decimals
+  ) {}
+
 }

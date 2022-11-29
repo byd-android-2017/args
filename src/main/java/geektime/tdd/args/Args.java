@@ -74,7 +74,9 @@ public class Args {
   private static final Map<Class<?>, OptionParser<?>> OPTION_PARSER_REGISTER = Map.of(
       boolean.class, bool(),
       int.class, unary(0, Integer::valueOf),
-      String.class, unary("", Function.identity())
+      String.class, unary("", Function.identity()),
+      Integer[].class, OptionParsers.list(new Integer[0], Integer[]::new, Integer::parseInt),
+      String[].class, OptionParsers.list(new String[0], String[]::new, Function.identity())
   );
 
   /**
