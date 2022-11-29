@@ -84,10 +84,7 @@ class OptionParsers {
       @NotNull Function<String, T> parseValueFun) {
     final var flagIndex = arguments.indexOf("-" + option.value());
 
-    // 命令行参数标识不存在时，返回默认值
-    if (flagIndex == -1) {
-      return defaultValue;
-    }
+
 
     final var flagValuesOptional = extractFlagValue(
         arguments, flagIndex);
@@ -109,7 +106,7 @@ class OptionParsers {
     return new IllegalArgumentException(option.value() + "对应的参数值:"
         + flagValues + "格式不对", e);
   }
-  
+
   private static void validOptionValue(Option option, List<String> flagValues, int expectedSize) {
     int size = flagValues.size();
 
@@ -136,6 +133,7 @@ class OptionParsers {
       throws InsufficientArgumentsException, TooManyArgumentsException {
     List<String> values;
     if (-1 == flagIndex) {
+      // 命令行参数标识不存在时，返回默认值
       values = null;
     } else {
       final var size = arguments.size();
