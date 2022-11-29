@@ -56,12 +56,12 @@ class OptionParsers {
       @NotNull IntFunction<T[]> generator,
       @NotNull Function<String, T> parseValueFun) {
     return (arguments, option) -> {
-      final var flagIndex = arguments.indexOf("-" + option.value());
 
       final var flagValuesOptional = extractFlagValue(
-            arguments, flagIndex);
+            arguments, option);
       return flagValuesOptional.map(flagValues -> {
-        validListOptionValue(option, flagValues);
+
+       validListOptionValue(option, flagValues);
 
         try {
           return flagValues.stream().map(parseValueFun).toArray(generator);
@@ -82,12 +82,9 @@ class OptionParsers {
   private static <T> T fetchOptionValue(List<String> arguments, Option option,
       int expectedSize, T defaultValue,
       @NotNull Function<String, T> parseValueFun) {
-    final var flagIndex = arguments.indexOf("-" + option.value());
-
-
 
     final var flagValuesOptional = extractFlagValue(
-        arguments, flagIndex);
+        arguments, option);
     return flagValuesOptional.map(flagValues -> {
         validOptionValue(option, flagValues, expectedSize);
 
@@ -129,8 +126,9 @@ class OptionParsers {
    * @return 选项参数值列表（原始值）
    */
   @NotNull
-  private static Optional<List<String>> extractFlagValue(List<String> arguments, int flagIndex)
+  private static Optional<List<String>> extractFlagValue(List<String> arguments, Option option)
       throws InsufficientArgumentsException, TooManyArgumentsException {
+    final var flagIndex = arguments.indexOf("-" + option.value());
     List<String> values;
     if (-1 == flagIndex) {
       // 命令行参数标识不存在时，返回默认值
@@ -143,6 +141,7 @@ class OptionParsers {
           .findFirst()
           .orElse(size);
       values = arguments.subList(flagIndex + 1, nextFlagIndex);
+
     }
 
     return Optional.ofNullable(values);
