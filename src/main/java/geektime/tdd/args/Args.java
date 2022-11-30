@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * 命令行参数解析
@@ -23,24 +24,35 @@ import java.util.function.Function;
  */
 public class Args {
 
-  private Args() {
+  private final Map<Class<?>, OptionParser<?>> register;
+  private final List<String> arguments;
+
+  public Args(Map<Class<?>, OptionParser<?>> register, String... cmdLines) {
+    this.register = register;
+    this.arguments = List.of(cmdLines);
   }
 
   /**
    * 解释命令行参数
    *
    * @param optionsClass 目标对象类
-   * @param args         命令行参数
+   * @param cmdLines     命令行参数
    * @param <T>          目标对象类
    * @return 目标对象实例
    */
+  public static <T> T parse(Class<T> optionsClass, String... cmdLines) {
+    final var args = new Args(OPTION_PARSER_REGISTER, cmdLines);
+    return args.parse(optionsClass);
+  }
+
+  @NotNull
   @SuppressWarnings("unchecked")
-  public static <T> T parse(Class<T> optionsClass, String... args) {
+  public <T> T parse(Class<T> optionsClass) {
     try {
-      final List<String> arguments = List.of(args);
       Constructor<?> constructor = optionsClass.getDeclaredConstructors()[0];
+
       Object[] argsValues = Arrays.stream(constructor.getParameters()).map(
-          parameter -> parseOptionArgument(arguments, parameter)
+          this::parseOptionArgument
       ).toArray();
 
       return (T) constructor.newInstance(argsValues);
@@ -52,13 +64,13 @@ public class Args {
   /**
    * 解释构造器参数对应的值
    *
-   * @param arguments 命令行参数列表
    * @param parameter 构造器方法参数
    * @return 构造器方法参数值
    */
-  private static Object parseOptionArgument(List<String> arguments, Parameter parameter) {
+  private Object parseOptionArgument(Parameter parameter) {
     Class<?> parameterType = parameter.getType();
-    Optional<OptionParser<?>> parserOptional = buildOptionParser(parameterType);
+    Optional<OptionParser<?>> parserOptional = Optional.ofNullable(
+        register.get(parameterType));
     return parserOptional.map(parser -> {
       var optionOptional = Optional.ofNullable(parameter.getAnnotation(Option.class));
       return optionOptional.map(option -> parser.parse(arguments, option))
@@ -78,15 +90,5 @@ public class Args {
       Integer[].class, OptionParsers.list(new Integer[0], Integer[]::new, Integer::parseInt),
       String[].class, OptionParsers.list(new String[0], String[]::new, Function.identity())
   );
-
-  /**
-   * 目标对象构造器参数类型构造相应的参数值解释器
-   *
-   * @param parameterType 目标对象构造器参数类型
-   * @return 参数值解释器
-   */
-  private static  Optional<OptionParser<?>> buildOptionParser(Class<?> parameterType) {
-    return Optional.ofNullable(OPTION_PARSER_REGISTER.get(parameterType));
-  }
 
 }
