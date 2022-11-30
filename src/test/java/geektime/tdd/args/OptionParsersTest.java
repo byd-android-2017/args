@@ -7,19 +7,25 @@ import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import geektime.tdd.args.annotation.Option;
-import geektime.tdd.args.exception.ArgumentParseException;
 import geektime.tdd.args.exception.InsufficientArgumentsException;
 import geektime.tdd.args.exception.TooManyArgumentsException;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.InOrder;
 
 /**
  * SingleValueOptionParserTest
@@ -79,6 +85,31 @@ class OptionParsersTest {
       final List<String> arguments = List.of("-p", "8080");
       final Option option = option("p");
       assertThat(parser.parse(arguments, option)).isEqualTo(8080);
+    }
+
+    @Test
+    void should_parse_int_as_option_value_by_behavior() {
+      var parserFun = mock(String2IntFun.class);
+
+      final var parser = unary(0, parserFun);
+      String argumentValue = "8080";
+      final List<String> arguments = List.of("-p", argumentValue);
+      final Option option = option("p");
+      parser.parse(arguments, option);
+      verify(parserFun).apply(argumentValue);
+    }
+     interface String2IntFun extends Function<String, Integer> {}
+
+    @Test
+    void should_parse_int_as_option_value_by_behavior_2() {
+      var parserFun = mock(Function.class);
+
+      final var parser = unary(any(), parserFun);
+      String argumentValue = "8080";
+      final List<String> arguments = List.of("-p", argumentValue);
+      final Option option = option("p");
+      parser.parse(arguments, option);
+      verify(parserFun).apply(argumentValue);
     }
 
     // String -d /usr/logs
@@ -195,6 +226,26 @@ class OptionParsersTest {
       final Option option = option("g");
       assertThat(parser.parse(arguments, option)).isEqualTo(new String[] {"this", "is"});
     }
+
+    interface StrToObjFun extends Function<String, Object> {}
+
+    @Test
+    void should_parse_string_array_as_option_value_behavior() {
+      var parserFun = mock(StrToObjFun.class);
+      var parser = list(new Object[0], Object[]::new, parserFun);
+      String first = "this";
+      String second = "is";
+      final List<String> arguments = List.of("-g", first, second);
+      final Option option = option("g");
+      parser.parse(arguments, option);
+
+      InOrder inOrder = inOrder(parserFun, parserFun);
+      inOrder.verify(parserFun).apply(first);
+      inOrder.verify(parserFun).apply(second);
+
+    }
+
+
 
     @Test
     void should_parse_int_array_as_option_value() {
